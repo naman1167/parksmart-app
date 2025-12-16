@@ -1,11 +1,14 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const http = require('http');
+const { Server } = require('socket.io');
+
 const connectDB = require('./config/db');
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 const { startCronJobs } = require('./cron/subscriptionCron');
 
-// Import routes
+// Routes
 const authRoutes = require('./routes/authRoutes');
 const parkingSpotRoutes = require('./routes/parkingSpotRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
@@ -18,20 +21,22 @@ const pricingRoutes = require('./routes/pricingRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const geoRoutes = require('./routes/geoRoutes');
+const panicRoutes = require('./routes/panicRoutes');
+const swapRoutes = require('./routes/swapRoutes');
+const messageRoutes = require('./routes/messageRoutes');
 
-// Connect to database
+// 🔗 Connect DB (VERY IMPORTANT)
 connectDB();
 
-// Initialize Express app
+// Init app
 const app = express();
-const http = require('http');
-const { Server } = require('socket.io');
-
 const httpServer = http.createServer(app);
+
+// Socket.io
 const io = new Server(httpServer, {
     cors: {
-        origin: '*', // Allow all origins for development
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        origin: '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     },
 });
 
@@ -42,54 +47,39 @@ app.use(cors({
         'http://localhost:5174',
         'http://localhost:5175',
         'http://127.0.0.1:5173',
-        process.env.FRONTEND_URL // Allow production frontend
-    ].filter(Boolean), // Filter out undefined if env var is not set
+        process.env.FRONTEND_URL,
+    ].filter(Boolean),
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Make io accessible to our routers
+// Attach io to requests
 app.use((req, res, next) => {
     req.io = io;
     next();
 });
 
-// Socket.io connection handler
+// Socket handlers
 io.on('connection', (socket) => {
-    console.log('New client connected:', socket.id);
+    console.log('🔌 Client connected:', socket.id);
 
     socket.on('disconnect', () => {
-        console.log('Client disconnected:', socket.id);
+        console.log('❌ Client disconnected:', socket.id);
     });
 });
 
-// Welcome route
+// Health check
 app.get('/', (req, res) => {
     res.json({
         success: true,
         message: 'Welcome to ParkSmart API',
         version: '2.0.0',
-        endpoints: {
-            auth: '/api/auth',
-            parkingSpots: '/api/spots',
-            bookings: '/api/bookings',
-            stats: '/api/stats',
-            slots: '/api/slots',
-            wallet: '/api/wallet',
-            reservations: '/api/reservations',
-            qr: '/api/qr',
-            pricing: '/api/pricing',
-            analytics: '/api/analytics',
-            subscriptions: '/api/subscriptions',
-            parkings: '/api/parkings',
-        },
     });
 });
 
-// Mount routes
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/spots', parkingSpotRoutes);
 app.use('/api/bookings', bookingRoutes);
@@ -101,25 +91,24 @@ app.use('/api/qr', qrRoutes);
 app.use('/api/pricing', pricingRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/parkings', geoRoutes);
-app.use('/api/panic', require('./routes/panicRoutes'));
-app.use('/api/swap', require('./routes/swapRoutes'));
-app.use('/api/messages', require('./routes/messageRoutes'));
+app.use('/api/panic', panicRoutes);
+app.use('/api/swap', swapRoutes);
+app.use('/api/messages', messageRoutes);
 
-// Error handling middleware (must be after routes)
+// Error middleware
 app.use(notFound);
 app.use(errorHandler);
 
-// Start cron jobs
+// Cron jobs
 startCronJobs();
 
 // Start server
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {
-    console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+    console.log(
+        `🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`
+    );
 });
 
 module.exports = app;
-
