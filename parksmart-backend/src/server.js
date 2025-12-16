@@ -25,61 +25,80 @@ const panicRoutes = require('./routes/panicRoutes');
 const swapRoutes = require('./routes/swapRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 
-// 🔗 Connect DB (VERY IMPORTANT)
+// 🔗 Connect MongoDB FIRST
 connectDB();
 
 // Init app
 const app = express();
 const httpServer = http.createServer(app);
 
-// Socket.io
-const io = new Server(httpServer, {
-    cors: {
-        origin: '*',
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    },
-});
+// ✅ ALLOWED FRONTEND ORIGINS
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
+  'http://127.0.0.1:5173',
+  'https://parksmart-app.vercel.app', // 🔥 Vercel frontend
+];
 
-// Middleware
+// ✅ CORS (FINAL FIX)
 app.use(cors({
-    origin: [
-        'http://localhost:5173',
-        'http://localhost:5174',
-        'http://localhost:5175',
-        'http://127.0.0.1:5173',
-        process.env.FRONTEND_URL,
-    ].filter(Boolean),
-    credentials: true,
+  origin: function (origin, callback) {
+    // allow Postman, server-to-server, cron
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
+// ✅ Explicit preflight handler (VERY IMPORTANT)
+app.options('*', cors());
+
+// Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Socket.io
+const io = new Server(httpServer, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+});
+
 // Attach io to requests
 app.use((req, res, next) => {
-    req.io = io;
-    next();
+  req.io = io;
+  next();
 });
 
 // Socket handlers
 io.on('connection', (socket) => {
-    console.log('🔌 Client connected:', socket.id);
+  console.log('🔌 Client connected:', socket.id);
 
-    socket.on('disconnect', () => {
-        console.log('❌ Client disconnected:', socket.id);
-    });
+  socket.on('disconnect', () => {
+    console.log('❌ Client disconnected:', socket.id);
+  });
 });
 
 // Health check
 app.get('/', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Welcome to ParkSmart API',
-        version: '2.0.0',
-    });
+  res.json({
+    success: true,
+    message: 'Welcome to ParkSmart API',
+    version: '2.0.0',
+  });
 });
 
-// Routes
+// Routes (IMPORTANT: /api prefix)
 app.use('/api/auth', authRoutes);
 app.use('/api/spots', parkingSpotRoutes);
 app.use('/api/bookings', bookingRoutes);
@@ -106,9 +125,9 @@ startCronJobs();
 // Start server
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {
-    console.log(
-        `🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`
-    );
+  console.log(
+    `🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`
+  );
 });
 
 module.exports = app;
