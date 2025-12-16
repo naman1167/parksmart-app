@@ -1,0 +1,67 @@
+@import 'leaflet/dist/leaflet.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-800;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+
+  /* Modern Glassmorphism */
+  .glass {
+    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-xl;
+  }
+
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-2xl;
+  }
+
+  .glass-dark {
+    @apply bg-slate-900/80 backdrop-blur-lg border border-slate-700/50 text-white shadow-xl;
+  }
+
+  /* Vibrant Gradients */
+  .gradient-primary {
+    @apply bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-lg shadow-indigo-500/30 border-0 transition-all duration-300;
+  }
+
+  .gradient-secondary {
+    @apply bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-indigo-200 transition-all duration-300 shadow-sm;
+  }
+
+  .gradient-success {
+    @apply bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/30 border-0 transition-all duration-300;
+  }
+
+  /* Typography */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-violet-600 font-extrabold tracking-tight;
+  }
+
+  /* Effects */
+  .neon-border {
+    @apply border border-indigo-200;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-indigo-100;
+  }
+
+  /* GSAP Helper Classes (optional initialization states) */
+  .gsap-fade-in {
+    /* opacity: 0; - Disabled to ensure visibility if JS fails */
+  }
+
+  .gsap-stagger-item {
+    /* opacity: 0; - Disabled to ensure visibility if JS fails */
+    /* transform: translateY(20px); */
+  }
+}
