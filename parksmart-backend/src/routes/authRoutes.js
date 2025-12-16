@@ -8,16 +8,7 @@ const {
     getAllUsers,
 } = require('../controllers/authController');
 
-const { protect, adminOnly } = require('../middleware/authMiddleware');
-
-/**
- * ✅ IMPORTANT:
- * Explicit OPTIONS handler to avoid CORS issues on auth routes
- * (especially /login from Vercel)
- */
-router.options('*', (req, res) => {
-    res.sendStatus(204);
-});
+const { protect, adminOnly } = require('../middleware/authMiddleware);
 
 /**
  * @route   POST /api/auth/register
