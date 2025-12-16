@@ -14,7 +14,7 @@ export const SocketProvider = ({ children }) => {
         // Connect to the backend URL
         const backendUrl = import.meta.env.VITE_API_URL
             ? import.meta.env.VITE_API_URL.replace('/api', '')
-            : 'http://localhost:5001';
+            : 'http://127.0.0.1:5001';
         const newSocket = io(backendUrl);
         setSocket(newSocket);
 

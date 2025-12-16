@@ -37,7 +37,8 @@ const EditSpot = () => {
 
     const loadSpot = async () => {
         try {
-            const spot = await getSpotById(id);
+            const response = await getSpotById(id);
+            const spot = response.data;
             setFormData({
                 spotNumber: spot.spotNumber,
                 locationName: spot.location.name,

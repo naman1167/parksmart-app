@@ -196,7 +196,7 @@ const seedDatabase = async () => {
         console.log(`✅ ${createdSpots.length} parking spots created`);
 
         // Create sample bookings
-        
+
         const bookings = [
             {
                 user: createdUsers[1]._id,
@@ -206,6 +206,7 @@ const seedDatabase = async () => {
                 amountPaid: 40,
                 status: 'active',
                 referenceCode: 'ORD-SEED-001',
+                vehicleNumber: 'MH-01-AB-1234',
             },
             {
                 user: createdUsers[1]._id,
@@ -215,6 +216,7 @@ const seedDatabase = async () => {
                 amountPaid: 15,
                 status: 'completed',
                 referenceCode: 'ORD-SEED-002',
+                vehicleNumber: 'MH-01-AB-1234',
             },
             {
                 user: createdUsers[2]._id,
@@ -224,6 +226,7 @@ const seedDatabase = async () => {
                 amountPaid: 45,
                 status: 'active',
                 referenceCode: 'ORD-SEED-003',
+                vehicleNumber: 'MH-02-XY-5678',
             },
             {
                 user: createdUsers[2]._id,
@@ -233,6 +236,7 @@ const seedDatabase = async () => {
                 amountPaid: 16,
                 status: 'completed',
                 referenceCode: 'ORD-SEED-004',
+                vehicleNumber: 'MH-02-XY-5678',
             },
             {
                 user: createdUsers[1]._id,
@@ -242,6 +246,7 @@ const seedDatabase = async () => {
                 amountPaid: 45,
                 status: 'cancelled',
                 referenceCode: 'ORD-SEED-005',
+                vehicleNumber: 'MH-01-AB-1234',
             },
         ];
 

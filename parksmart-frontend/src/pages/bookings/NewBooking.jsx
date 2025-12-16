@@ -108,7 +108,7 @@ const NewBooking = () => {
 
             const response = await createBooking(bookingPayload);
             setSuccess('Booking created successfully!');
-            setTimeout(() => navigate(`/bookings/receipt/${response.data._id}`), 1000);
+            setTimeout(() => navigate('/dashboard'), 1000);
         } catch (error) {
             setError(error.response?.data?.message || 'Failed to create booking');
         } finally {
@@ -127,7 +127,7 @@ const NewBooking = () => {
 
             const response = await createBooking(bookingPayload);
             setSuccess('Booking created successfully! (Demo Mode - Payment Skipped)');
-            setTimeout(() => navigate(`/bookings/receipt/${response.data._id}`), 1000);
+            setTimeout(() => navigate('/dashboard'), 1000);
         } catch (error) {
             setError(error.response?.data?.message || 'Failed to create booking');
         } finally {

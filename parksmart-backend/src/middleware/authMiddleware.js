@@ -2,69 +2,77 @@ const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
 
-// Protect routes - verify JWT token
+/**
+ * @desc    Protect routes (JWT required)
+ */
 const protect = asyncHandler(async (req, res, next) => {
     let token;
 
-    // Check for token in Authorization header
+    // Authorization: Bearer <token>
     if (
         req.headers.authorization &&
-        req.headers.authorization.startsWith('Bearer')
+        req.headers.authorization.startsWith('Bearer ')
     ) {
-        try {
-            // Get token from header (format: "Bearer TOKEN")
-            token = req.headers.authorization.split(' ')[1];
+        token = req.headers.authorization.split(' ')[1];
 
-            // Verify token
+        try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-            // Get user from token (exclude password)
-            req.user = await User.findById(decoded.id).select('-password');
+            const user = await User.findById(decoded.id).select('-password');
 
-            if (!req.user) {
+            if (!user) {
                 res.status(401);
                 throw new Error('User not found');
             }
 
-            next();
+            req.user = user;
+            return next();
         } catch (error) {
-            console.error('Token verification failed:', error.message);
             res.status(401);
-            throw new Error('Not authorized, token failed');
+            throw new Error('Not authorized, token invalid');
         }
     }
 
-    if (!token) {
-        res.status(401);
-        throw new Error('Not authorized, no token provided');
-    }
+    // ❗ IMPORTANT: return here
+    res.status(401);
+    throw new Error('Not authorized, no token');
 });
 
-// Admin only middleware
+/**
+ * @desc    Admin-only access
+ */
 const adminOnly = (req, res, next) => {
     if (req.user && req.user.role === 'admin') {
-        next();
-    } else {
-        res.status(403);
-        throw new Error('Access denied. Admin only.');
+        return next();
     }
+
+    res.status(403);
+    throw new Error('Admin access only');
 };
 
-// Role-based middleware - accepts array of allowed roles
-const roleMiddleware = (allowedRoles) => {
+/**
+ * @desc    Role-based access (optional)
+ */
+const roleMiddleware = (allowedRoles = []) => {
     return (req, res, next) => {
         if (!req.user) {
             res.status(401);
             throw new Error('Not authenticated');
         }
 
-        if (allowedRoles.includes(req.user.role)) {
-            next();
-        } else {
+        if (!allowedRoles.includes(req.user.role)) {
             res.status(403);
-            throw new Error(`Access denied. Required role: ${allowedRoles.join(' or ')}`);
+            throw new Error(
+                `Access denied. Allowed roles: ${allowedRoles.join(', ')}`
+            );
         }
+
+        next();
     };
 };
 
-module.exports = { protect, adminOnly, roleMiddleware };
+module.exports = {
+    protect,
+    adminOnly,
+    roleMiddleware,
+};
