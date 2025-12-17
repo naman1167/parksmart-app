@@ -108,7 +108,8 @@ const NewBooking = () => {
 
             const response = await createBooking(bookingPayload);
             setSuccess('Booking created successfully!');
-            setTimeout(() => navigate(`/bookings/receipt/${response.data.data._id}`), 1000);
+            const bookingId = response.data?.data?._id || response.data?._id;
+            setTimeout(() => navigate(`/bookings/receipt/${bookingId}`), 1000);
         } catch (error) {
             setError(error.response?.data?.message || 'Failed to create booking');
         } finally {
@@ -127,7 +128,8 @@ const NewBooking = () => {
 
             const response = await createBooking(bookingPayload);
             setSuccess('Booking created successfully!');
-            setTimeout(() => navigate(`/bookings/receipt/${response.data.data._id}`), 1000);
+            const bookingId = response.data?.data?._id || response.data?._id;
+            setTimeout(() => navigate(`/bookings/receipt/${bookingId}`), 1000);
         } catch (error) {
             setError(error.response?.data?.message || 'Failed to create booking');
         } finally {
