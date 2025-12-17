@@ -32,3 +32,4 @@ Accessed via "Find My Spot" on the dashboard.
 ## 6. Real-time Updates
 - **Features**: The dashboard map updates in real-time when spots are booked or released.
 - **Mechanism**: Powered by Socket.io.
+
