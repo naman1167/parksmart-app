@@ -23,3 +23,9 @@ export const updateBookingStatus = async (id, status) => {
     const response = await api.put(`/bookings/${id}`, { status });
     return response.data;
 };
+
+// Get booking by batch ID
+export const getBookingByBatchId = async (batchId) => {
+    const response = await api.get(`/bookings/batch/${batchId}`);
+    return response.data;
+};

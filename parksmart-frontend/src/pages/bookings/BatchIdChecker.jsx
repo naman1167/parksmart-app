@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Search, MapPin, Calendar, CheckCircle, XCircle } from 'lucide-react';
-import axios from 'axios';
+import { getBookingByBatchId } from '../../api/bookings';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
@@ -26,16 +26,8 @@ const BatchIdChecker = () => {
         setSearched(false);
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(
-                `http://localhost:5001/api/bookings/batch/${batchId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-            setBooking(response.data.data);
+            const data = await getBookingByBatchId(batchId);
+            setBooking(data.data);
             setSearched(true);
         } catch (err) {
             console.error('Error searching batch ID:', err);

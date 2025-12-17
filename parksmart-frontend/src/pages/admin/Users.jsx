@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Mail, User, Shield, Calendar, Search } from 'lucide-react';
-import axios from 'axios';
+import { getAllUsers } from '../../api/users';
 import { useAuth } from '../../hooks/useAuth';
 import Card from '../../components/common/Card';
 import Loader from '../../components/common/Loader';
@@ -20,14 +20,8 @@ const Users = () => {
 
     const fetchUsers = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.get('http://localhost:5001/api/auth/users', config);
-            setUsers(response.data.data);
+            const data = await getAllUsers();
+            setUsers(data.data);
         } catch (err) {
             setError('Failed to load users');
             console.error(err);
